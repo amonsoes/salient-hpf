@@ -1,0 +1,13 @@
+/data/
+
+/saves/models/
+
+/figures/
+
+/wandb/
+
+.DS_Store
+
+/.vscode/
+
+/saves/reports/imgnet_classification/ImgNetCNN_*
