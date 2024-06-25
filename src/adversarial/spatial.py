@@ -112,7 +112,11 @@ class AttackLoader:
                 surrogate_path = ''
                 adv_training_protocol = None
             n_classes = 1000
-        
+        elif self.dataset_type == 'cifar100':
+            surrogate_path = ''
+            adv_training_protocol = None
+            n_classes = 100
+                
         loader = IMGNetCNNLoader(surrogate_path, adv_training_protocol)
         cnn, self.input_size = loader.transfer(surrogate_model, n_classes, feature_extract=False, device=self.device)
         cnn.model_name = surrogate_model
@@ -231,25 +235,28 @@ class WhiteBoxAttack:
         self.l2_norm = []
         self.n = 1
         
-        if dataset_type == 'nips17':
+        if dataset_type =='nips17':
             self.call_fn = self.attack_imgnet
-        else:
-            self.y = torch.tensor([0], dtype=torch.float32).unsqueeze(0).to(self.device)
-            self.call_fn = self.attack_binary
+        elif dataset_type == 'cifar100':
+            self.call_fn = self.attack_cifar
             
     def __call__(self, x, y):
         return self.call_fn(x, y)
     
-    def attack_binary(self, x, y):
+    def attack_cifar(self, x, y):
         with torch.enable_grad():
-            x = self.model_trms(x)
+            orig_x = x.clone().detach()
             x = x.to(self.device)
             self.model.zero_grad()
             x = x.unsqueeze(0)
-            y = torch.tensor([y]).to(self.device)
+            y = torch.LongTensor([y])
             perturbed_x = self.attack(x, y)
             perturbed_x = perturbed_x.squeeze(0).cpu()
-            self.l2_norm.append(self.get_l2(x.cpu(), perturbed_x))
+            self.l2_norm.append(self.get_l2(orig_x, perturbed_x))
+            mad_score = self.image_metric(orig_x, perturbed_x)
+            #torchvision.utils.save_image(orig_x, f'{self.orig_save_dir}/{self.n}.png', format='PNG')
+            #torchvision.utils.save_image(perturbed_x, f'{self.save_dir}/{self.n}.png', format='PNG')
+            self.n += 1
         return perturbed_x
     
     def attack_imgnet(self, x, y):

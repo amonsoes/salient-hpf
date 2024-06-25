@@ -1,0 +1,15 @@
+CHOSEN PARAMS FOR RUN
+
+analysis_type : cifar100_classification
+model_name : ImgNetCNN_resnet
+transform : pretrained
+lr : 5e-05
+epochs : 15
+batch_size : 32
+adversarial_training : False
+adversarial : True
+adversarial_model : pgd
+eps : 0.03
+attack_compression : False
+compression_rate : 40
+alpha : 0.00784313725490196

@@ -7,14 +7,18 @@ from options import args
 
 if __name__ == '__main__':
     
-    if args.dataset == '140k_flickr_faces' or args.dataset == 'debug':
+    if args.dataset == 'debug':
         n_classes = 2
+        model_dir_name = 'ImgNetCNN'
     elif args.dataset == 'nips17':
         n_classes = 1000
-    elif args.dataset == 'mnist':
-        n_classes = 10
+        model_dir_name = 'ImgNetCNN'
     elif args.dataset == 'cifar10':
         n_classes = 10
+        model_dir_name = 'CIFAR10CNN'
+    elif args.dataset == 'cifar100':
+        n_classes = 100
+        model_dir_name = 'CIFAR100CNN'
     
 
     loader = IMGNetCNNLoader(args.pretrained, args.adversarial_pretrained_opt)
@@ -34,34 +38,6 @@ if __name__ == '__main__':
                 adversarial_training_opt=args.adversarial_training_opt,
                 greyscale_opt=args.greyscale_opt)
     
-    """if args.dataset == '140k_flickr_faces':
-        data = SynDataset(dataset=args.dataset,
-                    device=args.device,
-                    batch_size=args.batchsize,
-                    transform=args.transform,
-                    input_size=input_size,
-                    adversarial_opt=args.adversarial_opt,
-                    adversarial_training_opt=args.adversarial_training_opt,
-                    greyscale_opt=args.greyscale_opt) 
-    elif args.dataset == 'nips17':
-        data = Nips17ImgNetData(device=args.device,
-                    batch_size=args.batchsize,
-                    transform=args.transform,
-                    input_size=input_size,
-                    adversarial_opt=args.adversarial_opt,
-                    adversarial_training_opt=args.adversarial_training_opt,
-                    greyscale_opt=args.greyscale_opt) 
-    elif args.dataset == 'debug':
-        data = SynDataset(dataset=args.dataset,
-                    device=args.device,
-                    batch_size=args.batchsize,
-                    transform=args.transform,
-                    input_size=input_size,
-                    adversarial_opt=args.adversarial_opt,
-                    adversarial_training_opt=args.adversarial_training_opt,
-                    greyscale_opt=args.greyscale_opt)  
-    else:
-        raise ValueError('DATASET NOT SUPPORTED')"""
     
     args.model_dir_name += '_' + cnn.model_name
     trainer = Trainer(model=cnn,
@@ -74,7 +50,7 @@ if __name__ == '__main__':
                     log_result=args.log_result,
                     adversarial_training_opt=args.adversarial_training_opt)
 
-    if not args.pretrained and data.dataset.dataset_type != 'nips17':
+    if not args.pretrained and data.dataset.dataset_type not in ['nips17', 'cifar100']:
         #print(f'\nrunning training for: \n{trainer.training.model}\n')
         best_acc = trainer.train_model(args.save_opt)
     

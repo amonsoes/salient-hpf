@@ -12,11 +12,17 @@ from src.utils.datautils import YCBCRTransform
 class SpatialTransforms:
 
 
-    def __init__(self, transform, greyscale_processing, input_size, cross_offset_type=(0,0)):
+    def __init__(self, transform, dataset_type, cross_offset_type=(0,0)):
+        
 
         self.cross_offset_type = cross_offset_type
         self.blur = T.GaussianBlur(kernel_size=5, sigma=(0.1, 3.0))
-        self.normalize = T.Normalize([0.5], [0.5]) if greyscale_processing else T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        if dataset_type == 'cifar10':
+            self.normalize = T.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
+        elif dataset_type == 'cifar100':
+            self.normalize = T.Normalize([0.5070, 0.4865, 0.4409], [0.2673, 0.2564, 0.2761])
+        elif dataset_type == 'nips17':
+            self.normalize = T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
         if transform == 'augmented':
             # std transforms with augmentations
@@ -26,7 +32,7 @@ class SpatialTransforms:
             self.transform_val = T.Compose([T.Lambda(lambda x: self.augment(x)),
                                         T.ConvertImageDtype(torch.float32)])
 
-        elif transform == 'pretrained_imgnet':
+        elif transform == 'pretrained':
             # IMGNet format without augmentations
             self.transform_train = T.Compose([T.ConvertImageDtype(torch.float32),
                                         self.normalize])

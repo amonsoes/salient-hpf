@@ -2,7 +2,9 @@ import os
 import pandas as pd
 
 from torch.utils.data import Dataset
+from torchvision.datasets import CIFAR100
 from torchvision.io import read_image
+from PIL import Image
 
 
 class FlickrSubset(Dataset):
@@ -150,6 +152,49 @@ class Nips17Subset(Dataset):
         image = self.transform(image, label)
         label = self.target_transform(label)
         return image, label
+
+class CustomCIFAR100(CIFAR100):
+    
+    #helps us to overwrite CIFAR10 obj for our purposes
+    
+    def __init__(self, adversarial, is_test_data, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if adversarial:
+            self.getitem_func = self.getitem_adversarial
+        else:
+            self.getitem_func = self.getitem
+
+    def __getitem__(self, index: int):
+        img, target, path = self.getitem_func(index)
+        return img, target, path
+    
+    def getitem_adversarial(self, index: int):
+        img, target = self.data[index], self.targets[index]
+        img = Image.fromarray(img)
+
+        if self.transform is not None:
+            img = self.transform(img, target)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return img, target, 'nopathgiven' # to make this work with our version
+
+    def getitem(self, index: int):
+        img, target = self.data[index], self.targets[index]
+
+        # doing this so that it is consistent with all other datasets
+        # to return a PIL Image
+        img = Image.fromarray(img)
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return img, target, 'nopathgiven' # to make this work with our version
+        
     
 
 

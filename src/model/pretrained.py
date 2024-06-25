@@ -4,7 +4,7 @@ import timm
 import torch
 import torch.nn as nn
 
-from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, ResNet50_Weights, resnet50
+from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50
 from src.model.xception import XceptionLoader, XceptionSettings
 
 
@@ -44,6 +44,43 @@ class IMGNetCNNLoader:
         elif num_classes == 1000 and self.load_adversarial_pretrained: # no need for projection head as data is imgnet 
 
             model_ft, input_size = self.load_adv_pretrained_for_imgnet(device, feature_extract)
+            return model_ft, input_size
+
+        elif num_classes == 10: # load CIFAR10 Resnet
+            
+            if model_name == 'resnet':
+            
+                # loads a 20-layer CIFAR10 resnet
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_resnet20", pretrained=True)
+                model_ft.to(device)
+                model_ft.device = device
+                input_size = 32
+            
+            elif model_name == 'vgg':
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_vgg11_bn", pretrained=True)
+                model_ft.to(device)
+                model_ft.device = device
+                input_size = 32
+                
+            return model_ft, input_size
+
+
+        elif num_classes == 100: # load CIFAR100 Resnet
+            
+            if model_name == 'resnet':
+            
+                # loads a 56-layer CIFAR100 resnet
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_resnet56", pretrained=True)
+                model_ft.to(device)
+                model_ft.device = device
+                input_size = 32
+            
+            elif model_name == 'vgg':
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar100_vgg16_bn", pretrained=True)
+                model_ft.to(device)
+                model_ft.device = device
+                input_size = 32
+                
             return model_ft, input_size
             
         else: # load from pretrained for transfer

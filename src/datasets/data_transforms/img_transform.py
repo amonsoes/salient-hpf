@@ -58,11 +58,11 @@ class IMGTransforms:
 
         # (1) get basis transforms
         
-        train_base_transform, val_base_transform= self.get_base_trm()
+        train_base_transform, val_base_transform = self.get_base_trm()
         
         # (2) get main trainsform
         
-        transform_train, transform_val = self.get_main_trm(transform, *args, **kwargs)
+        transform_train, transform_val = self.get_main_trm(transform, dataset_type, *args, **kwargs)
         
         # (3) compose base and main transform. adversarial trms get CustomCompose for label access
         
@@ -92,23 +92,19 @@ class IMGTransforms:
 
         if self.input_size == 299:
             resize = T.Resize(299)
-            crop_size = 299 
+            crop_size = 299
+        elif self.input_size == 32: # for CIFAR models
+            resize = T.Resize(32)
+            crop_size = 32
         else:
             resize = T.Resize(256)
             crop_size = 224
-        
-        if self.greyscale_opt.greyscale_processing:
-            
-            
-            train_base_transform = T.Compose([resize,
-                                                T.RandomResizedCrop(crop_size, scale=(0.5,1)),
-                                                T.RandomHorizontalFlip(),
-                                                T.Grayscale()])
 
-            val_base_transform = T.Compose([resize,
-                                            T.CenterCrop(crop_size), 
-                                            T.Grayscale()])            
-        else:
+        #val_base_trm_size is needed for correct loading of adversarial attacks
+        val_base_trm_size = crop_size
+        
+        if self.dataset_type == 'nips17':
+        
             train_base_transform = T.Compose([resize,
                                             T.RandomResizedCrop(crop_size, scale=(0.5,1)),
                                             T.RandomHorizontalFlip()])
@@ -118,13 +114,26 @@ class IMGTransforms:
             else:
                 val_base_transform = T.Compose([resize,
                                                     T.CenterCrop(crop_size)])
+
+        elif self.dataset_type in ['cifar10', 'cifar100']:
+
+            train_base_transform = T.Compose([resize,
+                                            T.RandomHorizontalFlip()])
+            if self.adversarial_opt.adversarial:
+                val_base_transform = T.Compose([resize, T.ToTensor()])
+            else:
+                val_base_transform = T.Compose([resize, T.ToTensor()])
+            
+        else:
+            raise ValueError('ERROR : dataset type currently not supported for image transforms.')
+        
         
         return train_base_transform, val_base_transform
     
-    def get_main_trm(self, transform, *args, **kwargs):
+    def get_main_trm(self, transform, dataset_type, *args, **kwargs):
         if transform in ['standard', 
                         'augmented', 
-                        'pretrained_imgnet',
+                        'pretrained',
                         'augmented_pretrained_imgnet', 
                         'band_cooccurrence', 
                         'cross_cooccurrence', 
@@ -134,8 +143,7 @@ class IMGTransforms:
                         'calc_avg_attack_norm']:
             
             transforms = SpatialTransforms(transform,
-                                           self.greyscale_opt.greyscale_processing, 
-                                           self.input_size, 
+                                           dataset_type,
                                            *args, 
                                            **kwargs)
 
@@ -161,19 +169,6 @@ class IMGTransforms:
     
     def get_adv_trm(self, val_base_transform, transform_val, model):
         
-        # define spectral adv
-        
-        """if self.adversarial_opt.spectral_adv:
-            self.transform_val_spectral = T.Compose([val_base_transform,
-                                                    SpectrumNorm(num_features=40,
-                                                                greyscale_processing=self.adversarial_opt.greyscale_processing,
-                                                                img_size=self.input_size,
-                                                                path_power_dict=self.adversarial_opt.power_dict_path, 
-                                                                path_delta=self.adversarial_opt.spectral_delta_path,
-                                                                dataset_type=self.dataset_type),
-                                                    transform_val])"""
-            
-
         # define spatial adv 
         
         self.transform_val_spatial = None
@@ -182,17 +177,20 @@ class IMGTransforms:
                 self.transform_val_spatial = T.Compose([val_base_transform, Augmenter()])
             else:
                 surrogate_model_name = self.adversarial_opt.spatial_attack_params.surrogate_model
-                surrogate_input_size = 299 if surrogate_model_name in ['inception', 'xception', 'adv-inception'] else 224
-                if surrogate_input_size != val_base_transform.transforms[1].size[0]:
-                    surrogate_post_resize = T.Resize(surrogate_input_size)
+                surrogate_input_size = self.get_surrogate_input_size(surrogate_model_name)
+                #surrogate_input_size = 299 if surrogate_model_name in ['inception', 'xception', 'adv-inception'] else 224
+                if self.dataset_type == 'nips17':
+                    if surrogate_input_size != val_base_transform.transforms[1].size[0]:
+                        surrogate_post_resize = T.Resize(surrogate_input_size)
                     
-                surrogate_trm_name = 'pretrained_imgnet'
+                surrogate_trm_name = 'pretrained'
                 surrogate_transforms = SpatialTransforms(surrogate_trm_name,
-                                            self.greyscale_opt.greyscale_processing, 
-                                            surrogate_input_size)
+                                            self.dataset_type,
+                                            )
                 surrogate_trm = surrogate_transforms.transform_val
-                if surrogate_input_size != val_base_transform.transforms[1].size[0]:
-                    surrogate_trm = T.Compose([surrogate_post_resize, surrogate_trm])
+                if self.dataset_type == 'nips17':
+                    if surrogate_input_size != val_base_transform.transforms[1].size[0]:
+                        surrogate_trm = T.Compose([surrogate_post_resize, surrogate_trm])
                 attack_loader = AttackLoader(attack_type=self.adversarial_opt.spatial_adv_type,
                                             device=self.device,
                                             dataset_type=self.dataset_type,
@@ -217,6 +215,17 @@ class IMGTransforms:
                                                 attack_transform=self.transform_val_spatial)
         
         return transform_train_adv, transform_val_adv
+
+    def get_surrogate_input_size(self, surrogate_model_name):
+        if self.dataset_type == 'nips17':
+            if surrogate_model_name in ['inception', 'xception', 'adv-inception']:
+                surrogate_input_size = 299 
+            else:
+                surrogate_input_size = 224
+        elif self.dataset_type == 'cifar100':
+            surrogate_input_size = 32
+        return surrogate_input_size
+        
         
 
 

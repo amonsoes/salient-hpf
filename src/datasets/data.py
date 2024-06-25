@@ -1,10 +1,10 @@
 import csv
 
-from torch.utils.data import DataLoader
-from src.datasets.subsets import FlickrSubset, FlickrSubsetWithPath, AugmentedFlickrSubset, Nips17Subset
+from torch.utils.data import DataLoader, random_split
+from src.datasets.subsets import FlickrSubset, FlickrSubsetWithPath, AugmentedFlickrSubset, Nips17Subset, CustomCIFAR100
 from src.datasets.data_transforms.img_transform import IMGTransforms
 from torch.utils.data import ConcatDataset
-from torchvision.datasets import MNIST, CIFAR10
+from torchvision.datasets import MNIST, CIFAR10, CIFAR100
 
 class Data:
     
@@ -17,9 +17,11 @@ class Data:
         elif dataset_name == 'nips17':
             dataset = Nips17ImgNetData(*args, **kwargs)
         elif dataset_name == 'mnist':
-            dataset == MNISTDataset(*args, **kwargs)
+            dataset = MNISTDataset(*args, **kwargs)
         elif dataset_name == 'cifar10':
-            dataset == CIFAR10Dataset(*args, **kwargs)
+            dataset = CIFAR10Dataset(*args, **kwargs)
+        elif dataset_name == 'cifar100':
+            dataset = CIFAR100Dataset(*args, **kwargs)
         else:
             raise ValueError('Dataset not recognized')
         return dataset
@@ -231,7 +233,31 @@ class CIFAR10Dataset:
 
     def get_data(self):
         train_val_data = CIFAR10(root='./data', train=True, download=True, transform=self.transforms)
-        test_data = CIFAR10(root='./data', train=False, download=True, transform=self.transforms)
+        test_data = CIFAR10(root='./data', train=False, download=True, transform=self.transforms.transform_val)
+        return train_val_data, test_data
+
+class CIFAR100Dataset(BaseDataset):
+    
+    def __init__(self,
+                *args,
+                **kwargs):
+        super().__init__('cifar100', *args, **kwargs)
+        
+        self.train_val_data, self.test_data =  self.get_data()
+        self.dataset_type = 'cifar100'
+
+        if self.adversarial_training_opt.adversarial_training:
+            self.train = DataLoader(self.train_val_data, batch_size=self.batch_size, shuffle=True)
+        else:
+            self.train_data, self.val_data = random_split(self.train_val_data, [0.8, 0.2])
+            # self.train_data, self.val_data = self.train_val_data.split_random(self.train_val_data, lengths=[0.8, 0.2])
+            self.train = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)
+            self.validation = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False)
+        self.test = DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False)
+
+    def get_data(self):
+        train_val_data = CIFAR100(root='./data', train=True, download=True, transform=self.transforms.transform_train)
+        test_data = CustomCIFAR100(adversarial=self.adversarial_opt.adversarial, is_test_data=True, root='./data', train=False, download=True, transform=self.transforms.transform_val)
         return train_val_data, test_data
         
 if __name__ == '__main__':
