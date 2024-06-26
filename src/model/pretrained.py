@@ -34,16 +34,19 @@ class IMGNetCNNLoader:
         if  self.loading_dir and not self.load_adversarial_pretrained: # load from pretrained for inference
             
             model_ft, input_size = self.load_pretrained_for_inference(model_name, num_classes, device, feature_extract)
+            model_ft.n_classes = num_classes
             return model_ft, input_size
 
         elif num_classes == 1000 and not self.load_adversarial_pretrained: # no need for projection head as data is imgnet 
 
             model_ft, input_size = self.load_pretrained_for_imgnet(model_name, device, feature_extract)
+            model_ft.n_classes = num_classes
             return model_ft, input_size
 
         elif num_classes == 1000 and self.load_adversarial_pretrained: # no need for projection head as data is imgnet 
 
             model_ft, input_size = self.load_adv_pretrained_for_imgnet(device, feature_extract)
+            model_ft.n_classes = num_classes
             return model_ft, input_size
 
         elif num_classes == 10: # load CIFAR10 Resnet
@@ -61,7 +64,8 @@ class IMGNetCNNLoader:
                 model_ft.to(device)
                 model_ft.device = device
                 input_size = 32
-                
+            
+            model_ft.n_classes = num_classes
             return model_ft, input_size
 
 
@@ -80,12 +84,14 @@ class IMGNetCNNLoader:
                 model_ft.to(device)
                 model_ft.device = device
                 input_size = 32
-                
+            
+            model_ft.n_classes = num_classes
             return model_ft, input_size
             
         else: # load from pretrained for transfer
 
             model_ft, input_size = self.load_pretrained_for_transfer(model_name, device, feature_extract)
+            model_ft.n_classes = num_classes
             return model_ft, input_size
     
     @classmethod

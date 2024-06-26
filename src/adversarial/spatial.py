@@ -92,16 +92,7 @@ class AttackLoader:
         return attack
 
     def get_model(self, surrogate_model):
-        if self.dataset_type == '140k_flickr_faces':
-            if surrogate_model == 'resnet':
-                surrogate_path = './saves/models/ImgnetCNN/2022-10-12/pretrained_resnet_pretrained_imgnet_intra.pt'
-                n_classes = 2
-            elif surrogate_model == 'adv_resnet_fbf':
-                surrogate_path = './saves/models/Adversarial/fbf_models/imagenet_model_weights_2px.pth.tar'
-                n_classes = 2
-            else:
-                raise ValueError('ATTACK CURRENTLY ONLY WITH RESNET. change surrogate_model in options')
-        elif self.dataset_type == 'nips17':
+        if self.dataset_type == 'nips17':
             if surrogate_model == 'adv_resnet_fbf':
                 surrogate_path = './saves/models/Adversarial/fbf_models/imagenet_model_weights_2px.pth.tar'
                 adv_training_protocol = 'fbf'
@@ -181,7 +172,7 @@ class BlackBoxAttack:
                                     surrogate_model=surrogate_model, 
                                     surrogate_model_trms=surrogate_model_trms,
                                     input_size=input_size,
-                                    num_classes=1000,
+                                    num_classes=surrogate_model.n_classes,
                                     *args, 
                                     **kwargs)
         elif attack_type == 'hpf_pg_rgf':
@@ -191,7 +182,7 @@ class BlackBoxAttack:
                                     surrogate_model=surrogate_model, 
                                     surrogate_model_trms=surrogate_model_trms,
                                     input_size=input_size,
-                                    num_classes=1000,
+                                    num_classes=surrogate_model.n_classes,
                                     *args, 
                                     **kwargs)
             
