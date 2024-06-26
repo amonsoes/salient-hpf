@@ -234,32 +234,16 @@ class WhiteBoxAttack:
         self.orig_save_dir = "./data/survey_data/orig"
         self.l2_norm = []
         self.n = 1
-        
-        if dataset_type =='nips17':
+        self.call_fn = self.attack_sample
+        """if dataset_type =='nips17':
             self.call_fn = self.attack_imgnet
         elif dataset_type == 'cifar100':
-            self.call_fn = self.attack_cifar
+            self.call_fn = self.attack_cifar"""
             
     def __call__(self, x, y):
         return self.call_fn(x, y)
     
-    def attack_cifar(self, x, y):
-        with torch.enable_grad():
-            orig_x = x.clone().detach()
-            x = x.to(self.device)
-            self.model.zero_grad()
-            x = x.unsqueeze(0)
-            y = torch.LongTensor([y])
-            perturbed_x = self.attack(x, y)
-            perturbed_x = perturbed_x.squeeze(0).cpu()
-            self.l2_norm.append(self.get_l2(orig_x, perturbed_x))
-            mad_score = self.image_metric(orig_x, perturbed_x)
-            #torchvision.utils.save_image(orig_x, f'{self.orig_save_dir}/{self.n}.png', format='PNG')
-            #torchvision.utils.save_image(perturbed_x, f'{self.save_dir}/{self.n}.png', format='PNG')
-            self.n += 1
-        return perturbed_x
-    
-    def attack_imgnet(self, x, y):
+    def attack_sample(self, x, y):
         with torch.enable_grad():
             orig_x = x.clone().detach() / 255
             x = x.to(self.device)

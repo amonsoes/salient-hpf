@@ -39,10 +39,10 @@ if __name__ == '__main__':
                 greyscale_opt=args.greyscale_opt)
     
     
-    args.model_dir_name += '_' + cnn.model_name
+    model_dir_name += '_' + cnn.model_name
     trainer = Trainer(model=cnn,
                     data=data.dataset,
-                    model_name=args.model_dir_name,
+                    model_name=model_dir_name,
                     num_classes=n_classes,
                     optim_args=args.optim,
                     epochs=args.epochs,

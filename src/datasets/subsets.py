@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import torchvision.transforms as T
 
 from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR100
@@ -159,6 +160,7 @@ class CustomCIFAR100(CIFAR100):
     
     def __init__(self, adversarial, is_test_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.pil_to_tensor = T.PILToTensor()
         if adversarial:
             self.getitem_func = self.getitem_adversarial
         else:
@@ -171,6 +173,7 @@ class CustomCIFAR100(CIFAR100):
     def getitem_adversarial(self, index: int):
         img, target = self.data[index], self.targets[index]
         img = Image.fromarray(img)
+        img = self.pil_to_tensor(img)
 
         if self.transform is not None:
             img = self.transform(img, target)
@@ -186,6 +189,7 @@ class CustomCIFAR100(CIFAR100):
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
         img = Image.fromarray(img)
+        img = self.pil_to_tensor(img)
 
         if self.transform is not None:
             img = self.transform(img)

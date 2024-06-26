@@ -37,6 +37,7 @@ def build_args():
     parser.add_argument('--use_sal_mask', type=lambda x: x in ['True', 'true', 'TRUE', '1', 'yes', 'y'], default=True, help='set to False to disable salient mask in HPF computation')
     parser.add_argument('--sal_mask_only', type=lambda x: x in ['True', 'true', 'TRUE', '1', 'yes', 'y'], default=False, help='set to False to disable salient mask in HPF computation')
     parser.add_argument('--hpf_mask_tau', type=float, default=0.7, help='set binary variable to define hpf mask and saliency mask tradeoff')
+    parser.add_argument('--dct_patch_size', type=int, default=8, help='set dct patch size')
     
     # adv: compression and counter-compression
     parser.add_argument('--attack_compression', type=lambda x: x in ['True', 'true', 'TRUE', '1', 'yes', 'y'], default=False, help='activate JPEG compression on spatial attack')

@@ -120,9 +120,9 @@ class IMGTransforms:
             train_base_transform = T.Compose([resize,
                                             T.RandomHorizontalFlip()])
             if self.adversarial_opt.adversarial:
-                val_base_transform = T.Compose([resize, T.ToTensor()])
+                val_base_transform = T.Compose([resize])
             else:
-                val_base_transform = T.Compose([resize, T.ToTensor()])
+                val_base_transform = T.Compose([resize])
             
         else:
             raise ValueError('ERROR : dataset type currently not supported for image transforms.')

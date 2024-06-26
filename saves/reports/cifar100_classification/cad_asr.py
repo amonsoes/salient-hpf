@@ -1,4 +1,7 @@
 import csv
+import argparse
+import os
+import torch
 
 class ASR:
     
@@ -136,13 +139,36 @@ class ConditionalAverageRate:
                                 self.n += 1
                 return self.acc_dist / (self.n + self.mu)
 
-    
-    
+
+def get_base(res_path):
+    run_name = res_path.split('/')[-1]
+    base_path = res_path.split('/')[:-1]
+    run_base_ls = run_name.split('_')
+    run_base_str = "_".join(run_base_ls[1:3])
+    run_base_str += '_base'
+    return "/".join(base_path) + '/' +run_base_str
+            
 if __name__ == '__main__':
     
-    path = '/home/amon/git_repos/adv-attacks/saves/reports/intra_model_detection/2023-07-11_ImgNetCNN_xception_bim_0.2_2'
-    basepath = '/home/amon/git_repos/adv-attacks/saves/reports/intra_model_detection/ImgNetCNN_xception_base'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('res_path', type=str, default='', help='results path')
+    args = parser.parse_args()
     
-    asr = ASR(path, basepath)
-    asr_result = asr()
-    print(asr_result)
+    res_path = args.res_path
+    #res_path= '2023-05-03_ImgNetCNN_resnet_hpf_vmifgsm_0.0004'
+    
+    res_path = os.path.abspath(res_path)
+    
+    base_path = get_base(res_path)
+    
+    asr_metric = ASR(res_path, base_path)
+    cad_metric = ConditionalAverageRate(res_path, base_path)
+    
+    
+    print('#####################################\n\nRESULTS:\n')
+    print(f'ASR : {asr_metric()}\n')
+    print(f'CAD : {cad_metric()}\n')
+    print('\n#####################################')
+    
+    
+    

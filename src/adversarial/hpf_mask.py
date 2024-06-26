@@ -18,12 +18,13 @@ class HPFMasker:
                 log_mu=0.6,  
                 lf_boosting=0.0,
                 targeted=False,
-                is_black_box=False):
+                is_black_box=False,
+                dct_patch_size=8):
         
         if not use_sal_mask and sal_mask_only:
             raise ValueError('You cannot cannot disable the saliency mask and use the saliency mask only at the same time.')
         self.device = device
-        self.dct = DCT(img_size=input_size, patch_size=8, n_channels=3, diagonal=diagonal)
+        self.dct = DCT(img_size=input_size, patch_size=dct_patch_size, n_channels=3, diagonal=diagonal)
         self.log = LaplacianOfGaussian(log_sigma)
         self.gaussian = T.GaussianBlur(kernel_size=dct_gauss_ksize)
         self.to_grey = T.Grayscale()
@@ -33,6 +34,7 @@ class HPFMasker:
         self.targeted = targeted
         self.hpf_mask = None
         self.is_black_box = is_black_box
+        self.convert_to_float = T.ConvertImageDtype(torch.float32)
         if input_size == 299:
             self.resize = T.Resize(input_size) # for 299 x 299 img sizes
             self.get_log_and_dct_mask_fn = self.get_log_and_dct_mask_for_299
@@ -240,7 +242,7 @@ class HPFMasker:
         return imgs
     
     def normalize(self, imgs):
-        imgs = imgs.to(torch.float32) / 255
+        imgs = self.convert_to_float(imgs)
         return imgs
 
 
@@ -249,13 +251,14 @@ class Patchify:
     def __init__(self, img_size, patch_size, n_channels):
         self.img_size = img_size
         self.n_patches = (img_size // patch_size) ** 2
+        self.patch_size = patch_size
 
         #assert (img_size // patch_size) * patch_size == img_size
         
     def __call__(self, x):
-        p = x.unfold(1, 8, 8).unfold(2, 8, 8).unfold(3, 8, 8) # x.size() -> (batch, model_dim, n_patches, n_patches)
+        p = x.unfold(1, self.patch_size, self.patch_size).unfold(2, self.patch_size, self.patch_size).unfold(3, self.patch_size, self.patch_size) # x.size() -> (batch, model_dim, n_patches, n_patches)
         self.unfold_shape = p.size()
-        p = p.contiguous().view(-1,8,8)
+        p = p.contiguous().view(-1,self.patch_size,self.patch_size)
         return p
     
     def inverse(self, p):
@@ -278,7 +281,8 @@ class DCT:
         print('DCT class transforms on 3d tensors')
         self.patchify = Patchify(img_size=img_size, patch_size=patch_size, n_channels=n_channels)
         self.normalize = T.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        self.mask = torch.flip(torch.triu(torch.ones((8,8)), diagonal=diagonal), dims=[0])
+        self.mask = torch.flip(torch.triu(torch.ones((patch_size,patch_size)), diagonal=diagonal), dims=[0])
+        self.patch_size = patch_size
         self.n = 0
         self.tile_mean = 0
         
@@ -307,7 +311,7 @@ class DCT:
     def calculate_fgsm_coeffs(self, patch):
         masked_patch = patch[self.mask == 1].abs()
         sum_patch = sum(masked_patch)
-        return torch.full((8,8), fill_value=sum_patch.item())
+        return torch.full((self.patch_size,self.patch_size), fill_value=sum_patch.item())
 
 class LaplacianOfGaussian:
     

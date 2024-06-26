@@ -205,7 +205,8 @@ def adversarial_setup(args, filename):
                 'hpf_mask_tau' : args.hpf_mask_tau,
                 'log_mu' : args.log_mu,
                 'lf_boosting' : args.lf_boosting,
-                'diagonal' : args.diagonal
+                'diagonal' : args.diagonal,
+                'dct_patch_size': args.dct_patch_size
             }
             spatial_attack_params.hpf_mask_params = hpf_mask_params
         else:
