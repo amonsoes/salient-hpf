@@ -88,7 +88,7 @@ class ConditionalAverageRate:
         self.acc_dist = 0.0
         self.n = 0
         eps, dim = self.get_epsilon(path)
-        delta_eps = torch.full((3, dim, dim), eps)
+        #delta_eps = torch.full((3, dim, dim), eps)
         #self.max_pert_dist = delta_eps.pow(2).sum().sqrt()
         self.mu = 0.000001
         
