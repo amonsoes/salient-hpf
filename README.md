@@ -107,6 +107,7 @@ PGDL2:
 - HPF
 - LF-Boosting
 
+**Important**: If you test a hpf attack on a cifar dataset, set the option "--dct_patch_size=4" to adjust for the smaller images.
 
 
 ### (1) White-Box Attacks
@@ -128,8 +129,13 @@ EPSILON:
 - bim : 0.023
 - vmifgsm: 0.008
 
+DATASET:
+
+- nips17
+- cifar100
+
 ```bash
-python3 run_pretrained.py --dataset=nips17 --model_name=resnet --transform=pretrained_imgnet --device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=ATTACK --eps=EPSILON --use_sal_mask True
+python3 run_pretrained.py --dataset=DATASET --model_name=resnet --transform=pretrained --device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=ATTACK --eps=EPSILON --use_sal_mask Tru
 ```
 
 <br>
@@ -148,13 +154,13 @@ add 'hpf_' to attack with hpf version
 **PG-RGF**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --model_name inception --transform pretrained_imgnet --adversarial True --spatial_adv_type pg_rgf --eps 7.0 --use_sal_mask True --surrogate_model resnet --max_queries 10
+python3 run_pretrained.py --dataset DATASET --model_name inception --transform pretrained --adversarial True --spatial_adv_type pg_rgf --eps 7.0 --use_sal_mask True --surrogate_model resnet --max_queries 10
 ```
 
 **VMIFGSM**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --model_name inception --transform pretrained_imgnet --adversarial True --spatial_adv_type vmifgsm --eps 0.07 --use_sal_mask True --surrogate_model resnet
+python3 run_pretrained.py --dataset DATASET --model_name inception --transform pretrained --adversarial True --spatial_adv_type vmifgsm --eps 0.07 --use_sal_mask True --surrogate_model resnet
 ```
 
 <br>
@@ -170,18 +176,23 @@ FGSM : eps 0.0129
 BIM : eps 0.01
 VMIFGSM: eps 0.008
 
+DATASET:
+
+- nips17
+- cifar10 (do not forget to change the path in --pretrained to a cifar10 model)
+
 change attack and eps value accordingly to get paper results
 
 **PGD-Resnet**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --pretrained=./saves/models/Adversarial/pgd_models/imagenet_linf_4.pt --transform pretrained_imgnet --adversarial_pretrained True --adv_pretrained_protocol pgd --batchsize 16 --device cuda:0 --model_name adv-resnet-pgd --adversarial True --spatial_adv_type hpf_vmifgsm --eps 0.008 --surrogate_model adv_resnet_pgd --use_sal_mask True
+python3 run_pretrained.py --dataset DATASET --pretrained=./saves/models/Adversarial/pgd_models/cifar10_resnet50_linf_8255.pt --transform pretrained --adversarial_pretrained True --adv_pretrained_protocol pgd --batchsize 16 --device cuda:0 --model_name adv-resnet-pgd --adversarial True --spatial_adv_type hpf_vmifgsm --eps 0.008 --surrogate_model adv_resnet_pgd --use_sal_mask True
 ```
 
 **FBF-Resnet**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --pretrained=./saves/models/Adversarial/fbf_models/imagenet_model_weights_2px.pth.tar --transform pretrained_imgnet --adversarial_pretrained True --adv_pretrained_protocol fbf --batchsize 16 --device cuda:0 --model_name adv-resnet-fbf --adversarial True --spatial_adv_type hpf_fgsm --eps 0.0129 --surrogate_model adv_resnet_fbf --use_sal_mask True
+python3 run_pretrained.py --dataset DATASET --pretrained=./saves/models/Adversarial/fbf_models/imagenet_model_weights_2px.pth.tar --transform pretrained --adversarial_pretrained True --adv_pretrained_protocol fbf --batchsize 16 --device cuda:0 --model_name adv-resnet-fbf --adversarial True --spatial_adv_type hpf_fgsm --eps 0.0129 --surrogate_model adv_resnet_fbf --use_sal_mask True
 ```
 
 <br>
@@ -193,13 +204,13 @@ python3 run_pretrained.py --dataset nips17 --pretrained=./saves/models/Adversari
 Without HPF extension:
 
 ```bash
-python3 run_pretrained.py --dataset=nips17 --model_name=inception --transform=pretrained_imgnet --device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=pgdl2 --eps=5.0 --alpha=3.0 --surrogate_model inception
+python3 run_pretrained.py --dataset=nips17 --model_name=inception --transform=pretrained--device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=pgdl2 --eps=5.0 --alpha=3.0 --surrogate_model inception
 ```
 
 With HPF extension:
 
 ```bash
-python3 run_pretrained.py --dataset=nips17 --model_name=inception --transform=pretrained_imgnet --device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=hpf_pgdl2 --eps=5.0 --alpha=3.0 --use_sal_mask True --surrogate_model inception
+python3 run_pretrained.py --dataset=nips17 --model_name=inception --transform=pretrained --device=cuda:0 --batchsize 32 --adversarial=True --spatial_adv_type=hpf_pgdl2 --eps=5.0 --alpha=3.0 --use_sal_mask True --surrogate_model inception
 ```
 
 **Adversarially augmented Inception-V3**
@@ -207,13 +218,13 @@ python3 run_pretrained.py --dataset=nips17 --model_name=inception --transform=pr
 Without HPF extension:
 
 ```bash
-python3 run_pretrained.py --dataset=nips17 --model_name=adv-inception --transform=pretrained_imgnet --device=cuda:1 --batchsize 32 --adversarial=True --spatial_adv_type=pgdl2 --eps=5.0 --alpha=3.0 --surrogate_model adv-inception
+python3 run_pretrained.py --dataset=nips17 --model_name=adv-inception --transform=pretrained --device=cuda:1 --batchsize 32 --adversarial=True --spatial_adv_type=pgdl2 --eps=5.0 --alpha=3.0 --surrogate_model adv-inception
 ```
 
 Wit HPF extension:
 
 ```bash
-python3 run_pretrained.py --dataset=nips17 --model_name=adv-inception --transform=pretrained_imgnet --device=cuda:1 --batchsize 32 --adversarial=True --spatial_adv_type=hpf_pgdl2 --eps=5.0 --alpha=3.0 --use_sal_mask True --surrogate_model adv-inception
+python3 run_pretrained.py --dataset=nips17 --model_name=adv-inception --transform=pretrained --device=cuda:1 --batchsize 32 --adversarial=True --spatial_adv_type=hpf_pgdl2 --eps=5.0 --alpha=3.0 --use_sal_mask True --surrogate_model adv-inception
 ```
 
 <br>
@@ -225,19 +236,19 @@ replace eps argument with 0.04 for experiments with higher perturbation
 1. **FGSM**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained_imgnet --adversarial True --spatial_adv_type fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32
+python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained --adversarial True --spatial_adv_type fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32
 ```
 
 2. **HPF-FGSM**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained_imgnet --adversarial True --spatial_adv_type hpf_fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32
+python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained --adversarial True --spatial_adv_type hpf_fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32
 ```
 
 3. **HPF-FGSM (LF-boosted)**
 
 ```bash
-python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained_imgnet --adversarial True --spatial_adv_type hpf_fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32 --lf_boosting 0.5
+python3 run_pretrained.py --dataset nips17 --model_name resnet --transform pretrained --adversarial True --spatial_adv_type hpf_fgsm --eps=0.0129 --attack_compression True --attack_compression_rate 50 --use_sal_mask True --surrogate_model resnet --batchsize 32 --lf_boosting 0.5
 ```
 
 
