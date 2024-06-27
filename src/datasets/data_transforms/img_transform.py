@@ -222,7 +222,7 @@ class IMGTransforms:
                 surrogate_input_size = 299 
             else:
                 surrogate_input_size = 224
-        elif self.dataset_type == 'cifar100':
+        elif self.dataset_type in ['cifar100', 'cifar10']:
             surrogate_input_size = 32
         return surrogate_input_size
         

@@ -107,6 +107,15 @@ class AttackLoader:
             surrogate_path = ''
             adv_training_protocol = None
             n_classes = 100
+        elif self.dataset_type == 'cifar10':
+            if surrogate_model == 'adv_resnet_fbf':
+                surrogate_path = './saves/models/Adversarial/fbf_models/cifar_model_weights_30_epochs.pth'
+                adv_training_protocol = 'fbf'
+            else:
+                surrogate_path = ''
+                adv_training_protocol = None
+            n_classes = 10
+            
                 
         loader = IMGNetCNNLoader(surrogate_path, adv_training_protocol)
         cnn, self.input_size = loader.transfer(surrogate_model, n_classes, feature_extract=False, device=self.device)

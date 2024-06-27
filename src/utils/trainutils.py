@@ -8,7 +8,7 @@ from torch.optim import RAdam, SGD, Adam, lr_scheduler
 from torchmetrics import MetricCollection
 from torchmetrics.classification import Accuracy, Recall, Precision, AveragePrecision, F1Score
 from src.adversarial.asr_metric import ASR, ConditionalAverageRate
-from src.datasets.data import SynDataset, Nips17ImgNetData, CIFAR100Dataset
+from src.datasets.data import SynDataset, Nips17ImgNetData, CIFAR100Dataset, CIFAR10Dataset
 
 
 def get_optim(model, optim_args):
@@ -76,6 +76,8 @@ class TrainUtils:
             self.analysis = 'imgnet_classification'
         elif isinstance(data, CIFAR100Dataset):
             self.analysis = 'cifar100_classification'
+        elif isinstance(data, CIFAR10Dataset):
+            self.analysis = 'cifar10_classification'
         if adversarial_opt == None:
             adversarial = None
         else:

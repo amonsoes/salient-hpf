@@ -4,8 +4,9 @@ import timm
 import torch
 import torch.nn as nn
 
-from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50
+from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50, resnet18
 from src.model.xception import XceptionLoader, XceptionSettings
+from src.model.preactresnet import PreActResNet18
 
 
 class IMGNetCNNLoader:
@@ -49,18 +50,24 @@ class IMGNetCNNLoader:
             model_ft.n_classes = num_classes
             return model_ft, input_size
 
+        elif num_classes == 10 and self.load_adversarial_pretrained: 
+
+            model_ft, input_size = self.load_adv_pretrained_for_cifar10(device, feature_extract)
+            model_ft.n_classes = num_classes
+            return model_ft, input_size
+
         elif num_classes == 10: # load CIFAR10 Resnet
             
             if model_name == 'resnet':
             
                 # loads a 20-layer CIFAR10 resnet
-                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_resnet20", pretrained=True)
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_resnet56", pretrained=True)
                 model_ft.to(device)
                 model_ft.device = device
                 input_size = 32
             
             elif model_name == 'vgg':
-                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_vgg11_bn", pretrained=True)
+                model_ft = torch.hub.load("chenyaofo/pytorch-cifar-models", "cifar10_vgg16_bn", pretrained=True)
                 model_ft.to(device)
                 model_ft.device = device
                 input_size = 32
@@ -245,6 +252,31 @@ class IMGNetCNNLoader:
         #print(f'\n\nfinished loading.\n{model_ft}')
         
         return model_ft, input_size
+
+    def load_adv_pretrained_for_cifar10(self, device, feature_extract):
+        
+        print('\nWARNING: using the adversarial pretrained option essentially disables \
+            the usage of the option "model_name. Using it results in the respective loading \
+            of a particular model that was trained with the adv training protocol chosen in options.py"\n')
+        
+
+        checkpoint = torch.load(self.loading_dir, map_location=device)
+        model_ft = PreActResNet18()
+        #model_ft = torch.nn.DataParallel(model_ft)
+        self.set_params_requires_grad(model_ft, feature_extract)
+        #new_state_dict = self.remove_data_parallel(checkpoint['model'], 'module.model.')
+        model_ft.load_state_dict(checkpoint)
+        #model_ft.load_state_dict(new_state_dict)
+        input_size = 32
+        #model_ft = model_ft.module # extract model from DataParallel Wrapper
+
+        model_ft.device = device
+        model_ft.to(device)
+
+        #print(f'\n\nfinished loading.\n{model_ft}')
+        
+        return model_ft, input_size
+    
     
     def remove_data_parallel(self, state_dict, prefix):
         # prefix is length of prefix in module names of state_dict
