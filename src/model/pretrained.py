@@ -7,6 +7,7 @@ import torch.nn as nn
 from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50, resnet18
 from src.model.xception import XceptionLoader, XceptionSettings
 from src.model.preactresnet import PreActResNet18
+from src.model.madry_resnet import madry_resnet50
 
 
 class IMGNetCNNLoader:
@@ -258,17 +259,28 @@ class IMGNetCNNLoader:
         print('\nWARNING: using the adversarial pretrained option essentially disables \
             the usage of the option "model_name. Using it results in the respective loading \
             of a particular model that was trained with the adv training protocol chosen in options.py"\n')
-        
 
-        checkpoint = torch.load(self.loading_dir, map_location=device)
-        model_ft = PreActResNet18()
-        #model_ft = torch.nn.DataParallel(model_ft)
-        self.set_params_requires_grad(model_ft, feature_extract)
-        #new_state_dict = self.remove_data_parallel(checkpoint['model'], 'module.model.')
-        model_ft.load_state_dict(checkpoint)
-        #model_ft.load_state_dict(new_state_dict)
-        input_size = 32
-        #model_ft = model_ft.module # extract model from DataParallel Wrapper
+        if isinstance(self.adversarial_pretrained_opt, str):
+            adv_training_protocol = self.adversarial_pretrained_opt
+        else:
+            adv_training_protocol = self.adversarial_pretrained_opt.adv_pretrained_protocol
+        
+        if adv_training_protocol == 'fbf':
+            checkpoint = torch.load(self.loading_dir, map_location=device)
+            model_ft = PreActResNet18()
+            self.set_params_requires_grad(model_ft, feature_extract)
+            model_ft.load_state_dict(checkpoint)
+            input_size = 32
+        
+        elif adv_training_protocol == 'pgd':
+            checkpoint = torch.load(self.loading_dir, map_location=device)
+            model_ft = madry_resnet50()
+            #model_ft = torch.nn.DataParallel(model_ft)
+            self.set_params_requires_grad(model_ft, feature_extract)
+            new_state_dict = self.remove_data_parallel(checkpoint['state_dict'], 'module.model.')
+            model_ft.load_state_dict(new_state_dict)
+            input_size = 32
+
 
         model_ft.device = device
         model_ft.to(device)
@@ -278,7 +290,7 @@ class IMGNetCNNLoader:
         return model_ft, input_size
     
     
-    def remove_data_parallel(self, state_dict, prefix):
+    def remove_data_parallel(self, state_dict, prefix, new_prefix=''):
         # prefix is length of prefix in module names of state_dict
         # those will ned to be removed in order to load model properly without DataParalell
         prefix_len = len(prefix)
@@ -286,7 +298,7 @@ class IMGNetCNNLoader:
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
             if k.startswith(prefix):
-                name = k[prefix_len:] # remove prefix eg.'.module.model'
+                name = new_prefix + k[prefix_len:] # remove prefix eg.'.module.model'
                 new_state_dict[name] = v
         return new_state_dict
 
