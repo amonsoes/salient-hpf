@@ -44,9 +44,9 @@ class IMGNetCNNLoader:
             self.load_adversarial_pretrained = True
             self.adv_train_protocol = 'fbf'
             if num_classes == 1000:
-                self.loading_dir = '/saves/models/Adversarial/fbf_models/imagenet_model_weights_4px.pth.tar'
+                self.loading_dir = './saves/models/Adversarial/fbf_models/imagenet_model_weights_4px.pth.tar'
             elif num_classes == 10:
-                self.loading_dir = '/saves/models/Adversarial/fbf_models/cifar_model_weights_30_epochs.pth'
+                self.loading_dir = './saves/models/Adversarial/fbf_models/cifar_model_weights_30_epochs.pth'
             
 
         if  self.loading_dir and not self.load_adversarial_pretrained: # load from pretrained for inference
