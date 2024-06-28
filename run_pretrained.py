@@ -50,7 +50,7 @@ if __name__ == '__main__':
                     log_result=args.log_result,
                     adversarial_training_opt=args.adversarial_training_opt)
 
-    if not args.pretrained and data.dataset.dataset_type not in ['nips17', 'cifar100']:
+    if not args.pretrained and data.dataset.dataset_type not in ['nips17', 'cifar100', 'cifar10']:
         #print(f'\nrunning training for: \n{trainer.training.model}\n')
         best_acc = trainer.train_model(args.save_opt)
     

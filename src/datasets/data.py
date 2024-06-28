@@ -227,7 +227,7 @@ class CIFAR10Dataset(BaseDataset):
             self.train = DataLoader(self.train_val_data, batch_size=self.batch_size, shuffle=True)
         else:
             self.train_data, self.val_data = random_split(self.train_val_data, lengths=[0.8, 0.2])
-            self.train_data = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)
+            self.train = DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)
             self.validation = DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False)
         self.test = DataLoader(self.test_data, batch_size=self.batch_size, shuffle=False)
 

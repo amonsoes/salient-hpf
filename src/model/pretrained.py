@@ -32,6 +32,22 @@ class IMGNetCNNLoader:
 
         device = torch.device(device)
         #print(f'\nloading model....\n model: {model_name}\n frozen weights: {feature_extract}\n on device: {device}')
+        
+        if model_name =='adv_resnet_pgd':
+            self.load_adversarial_pretrained = True
+            self.adv_train_protocol = 'pgd'
+            if num_classes == 1000:
+                self.loading_dir = './saves/models/Adversarial/pgd_models/imagenet_linf_4.pt'
+            elif num_classes == 10:
+                self.loading_dir = './saves/models/Adversarial/pgd_models/cifar10_resnet50_linf_8255.pt'
+        elif model_name == 'adv_resnet_fbf':
+            self.load_adversarial_pretrained = True
+            self.adv_train_protocol = 'fbf'
+            if num_classes == 1000:
+                self.loading_dir = '/saves/models/Adversarial/fbf_models/imagenet_model_weights_4px.pth.tar'
+            elif num_classes == 10:
+                self.loading_dir = '/saves/models/Adversarial/fbf_models/cifar_model_weights_30_epochs.pth'
+            
 
         if  self.loading_dir and not self.load_adversarial_pretrained: # load from pretrained for inference
             
@@ -216,6 +232,8 @@ class IMGNetCNNLoader:
         
         if isinstance(self.adversarial_pretrained_opt, str):
             adv_training_protocol = self.adversarial_pretrained_opt
+        elif self.adversarial_pretrained_opt == None:
+            adv_training_protocol = self.adv_train_protocol
         else:
             adv_training_protocol = self.adversarial_pretrained_opt.adv_pretrained_protocol
             
@@ -262,6 +280,8 @@ class IMGNetCNNLoader:
 
         if isinstance(self.adversarial_pretrained_opt, str):
             adv_training_protocol = self.adversarial_pretrained_opt
+        elif self.adversarial_pretrained_opt == None:
+            adv_training_protocol = self.adv_train_protocol
         else:
             adv_training_protocol = self.adversarial_pretrained_opt.adv_pretrained_protocol
         

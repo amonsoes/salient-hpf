@@ -186,7 +186,7 @@ change attack and eps value accordingly to get paper results
 **PGD-Resnet**
 
 ```bash
-python3 run_pretrained.py --dataset DATASET --pretrained=./saves/models/Adversarial/pgd_models/cifar10_resnet50_linf_8255.pt --transform pretrained --adversarial_pretrained True --adv_pretrained_protocol pgd --batchsize 16 --device cuda:0 --model_name adv-resnet-pgd --adversarial True --spatial_adv_type hpf_vmifgsm --eps 0.008 --surrogate_model adv_resnet_pgd --use_sal_mask True
+python3 run_pretrained.py --dataset DATASET --pretrained=./saves/models/Adversarial/pgd_models/cifar10_resnet50_linf_8255.pt --transform pretrained --adversarial_pretrained True --adv_pretrained_protocol pgd --batchsize 16 --device cuda:0 --model_name adv_resnet_pgd --adversarial True --spatial_adv_type hpf_vmifgsm --eps 0.008 --surrogate_model adv_resnet_pgd --use_sal_mask True
 ```
 
 **FBF-Resnet**
