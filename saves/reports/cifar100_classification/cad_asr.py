@@ -135,8 +135,9 @@ class ConditionalAverageRate:
                     if r_line[-1] != '0.0': # check if adv attack was applied
                         if b_line[1] == b_line[2]: # check if base model predicted correctly
                             if r_line[1] != r_line[2]: # check if adv model forced misclassification
-                                self.acc_dist += float(r_line[-1]) #/ self.max_pert_dist)
-                                self.n += 1
+                                if r_line[-1] != 'nan': # some bug in l2 computation we have to figure out
+                                    self.acc_dist += float(r_line[-1]) #/ self.max_pert_dist)
+                                    self.n += 1
                 return self.acc_dist / (self.n + self.mu)
 
 

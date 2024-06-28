@@ -1,0 +1,3 @@
+IMAGE QUALITY METRICS
+
+Average MAD : nan
