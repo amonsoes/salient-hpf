@@ -33,14 +33,14 @@ class IMGNetCNNLoader:
         device = torch.device(device)
         #print(f'\nloading model....\n model: {model_name}\n frozen weights: {feature_extract}\n on device: {device}')
         
-        if model_name =='adv_resnet_pgd':
+        if model_name =='adv-resnet-pgd':
             self.load_adversarial_pretrained = True
             self.adv_train_protocol = 'pgd'
             if num_classes == 1000:
                 self.loading_dir = './saves/models/Adversarial/pgd_models/imagenet_linf_4.pt'
             elif num_classes == 10:
                 self.loading_dir = './saves/models/Adversarial/pgd_models/cifar10_resnet50_linf_8255.pt'
-        elif model_name == 'adv_resnet_fbf':
+        elif model_name == 'adv-resnet-fbf':
             self.load_adversarial_pretrained = True
             self.adv_train_protocol = 'fbf'
             if num_classes == 1000:
