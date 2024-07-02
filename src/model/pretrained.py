@@ -4,7 +4,7 @@ import timm
 import torch
 import torch.nn as nn
 
-from torchvision.models import resnet152, ResNet152_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50, resnet18
+from torchvision.models import resnet152, ResNet152_Weights, ResNet50_Weights, densenet201, DenseNet201_Weights, inception_v3, Inception_V3_Weights, resnet50, resnet18
 from src.model.xception import XceptionLoader, XceptionSettings
 from src.model.preactresnet import PreActResNet18
 from src.model.madry_resnet import madry_resnet50
@@ -184,6 +184,11 @@ class IMGNetCNNLoader:
     def load_pretrained_for_imgnet(self, model_name, device, feature_extract):
         if model_name == "resnet":
             model_ft = resnet152(weights=ResNet152_Weights.IMAGENET1K_V2)
+            self.set_params_requires_grad(model_ft, feature_extract)
+            input_size = 224
+        
+        elif model_name == "resnet50":
+            model_ft = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
             self.set_params_requires_grad(model_ft, feature_extract)
             input_size = 224
 
