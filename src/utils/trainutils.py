@@ -441,9 +441,11 @@ class Logger:
     
     def log_mad(self, attack_obj):
         avg_mad = attack_obj.image_metric.get_avg_mad()
+        avg_psnr = attack_obj.image_metric.get_avg_psnr()
         with open(f'{self.run_name}/image_quality_metrics.txt', 'a') as report_file:
             report_file.write('IMAGE QUALITY METRICS\n\n')
             report_file.write(f'Average MAD : {avg_mad}\n')
+            report_file.write(f'Average PSNR : {avg_psnr}\n')
 
     def log_eval_results(self, epoch_train_loss, epoch_val_loss, epoch_result):
         pass

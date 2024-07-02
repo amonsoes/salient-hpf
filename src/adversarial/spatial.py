@@ -229,7 +229,7 @@ class WhiteBoxAttack:
         self.model_trms = surrogate_model_trms
         self.input_size = input_size
         self.attack = self.load_attack(self.model, attack_type, surrogate_loss, hpf_masker, *args, **kwargs)
-        self.image_metric = ImageQualityMetric(['mad'])
+        self.image_metric = ImageQualityMetric(['mad', 'psnr'])
         self.save_dir = f"./data/survey_data/{attack_type.split('_')[0]}/vanilla" if len(attack_type.split('_')) == 1 else f"./data/survey_data/{attack_type.split('_')[1]}/hpf"
         self.orig_save_dir = "./data/survey_data/orig"
         self.l2_norm = []
@@ -253,7 +253,7 @@ class WhiteBoxAttack:
             perturbed_x = self.attack(x, y)
             perturbed_x = perturbed_x.squeeze(0).cpu()
             self.l2_norm.append(self.get_l2(orig_x, perturbed_x))
-            mad_score = self.image_metric(orig_x, perturbed_x)
+            mad_score, psnr_score = self.image_metric(orig_x, perturbed_x)
             #torchvision.utils.save_image(orig_x, f'{self.orig_save_dir}/{self.n}.png', format='PNG')
             #torchvision.utils.save_image(perturbed_x, f'{self.save_dir}/{self.n}.png', format='PNG')
             self.n += 1
