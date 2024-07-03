@@ -50,6 +50,7 @@ class AttackLoader:
             hpf_masker = None
         # load white or black box
         if attack_type in ['fgsm',
+                           'fgsml2',
                            'bim',
                            'pgd',
                            'pgdl2',
@@ -282,6 +283,8 @@ class WhiteBoxAttack:
     def load_whitebox(self, model, attack_type, surrogate_loss, hpf_masker, *args, **kwargs):
         if attack_type == 'fgsm':
             attack = torchattacks.attacks.fgsm.FGSM(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
+        elif attack_type == 'fgsml2':
+            attack = torchattacks.attacks.fgsm.FGSML2(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
         elif attack_type == 'hpf_fgsm':
             attack = torchattacks.attacks.fgsm.HpfFGSM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'ycbcr_hpf_fgsm':

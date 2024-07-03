@@ -1,0 +1,18 @@
+CHOSEN PARAMS FOR RUN
+
+analysis_type : imgnet_classification
+model_name : ImgNetCNN_resnet50
+transform : pretrained
+lr : 5e-05
+epochs : 15
+batch_size : 64
+adversarial_training : False
+adversarial : True
+adversarial_model : hpf_bim
+eps : 0.062745098
+attack_compression : False
+compression_rate : 40
+use_sal_mask : True
+sal_mask_only : False
+lf_boosting : 0.0
+alpha : 0.00784313725490196
