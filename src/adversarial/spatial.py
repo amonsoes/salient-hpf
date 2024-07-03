@@ -38,6 +38,7 @@ class AttackLoader:
     def load_attack(self, attack_type, hpf_mask_params, input_size, *args, **kwargs):
         # if hpf version create hpf_masker
         if attack_type in ['hpf_fgsm',
+                           'hpf_fgsml2',
                             'hpf_bim',
                             'hpf_pgd',
                             'hpf_pgdl2',
@@ -51,6 +52,7 @@ class AttackLoader:
         # load white or black box
         if attack_type in ['fgsm',
                            'fgsml2',
+                           'hpf_fgsml2',
                            'bim',
                            'pgd',
                            'pgdl2',
@@ -287,6 +289,8 @@ class WhiteBoxAttack:
             attack = torchattacks.attacks.fgsm.FGSML2(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
         elif attack_type == 'hpf_fgsm':
             attack = torchattacks.attacks.fgsm.HpfFGSM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
+        elif attack_type == 'hpf_fgsml2':
+            attack = torchattacks.attacks.fgsm.HpfFGSML2(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'ycbcr_hpf_fgsm':
             attack = torchattacks.attacks.fgsm.YcbcrHpfFGSM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'bim':

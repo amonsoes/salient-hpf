@@ -190,7 +190,7 @@ def adversarial_setup(args, filename):
                 spatial_attack_params.sigma = args.sigma
                 spatial_attack_params.learning_rate = args.learning_rate
         else:
-            if adversarial_opt.spatial_adv_type not in ['fgsm', 'hpf_fgsm', 'ycbcr_hpf_fgsm', 'fgsml2']:
+            if adversarial_opt.spatial_adv_type not in ['fgsm', 'hpf_fgsm', 'ycbcr_hpf_fgsm', 'fgsml2', 'hpf_fgsml2']:
                 spatial_attack_params.alpha = args.alpha
             if adversarial_opt.spatial_adv_type in ['vmifgsm', 'hpf_vmifgsm']:
                 spatial_attack_params.N = args.N

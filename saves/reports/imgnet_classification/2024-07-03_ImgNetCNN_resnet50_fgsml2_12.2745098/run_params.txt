@@ -1,0 +1,14 @@
+CHOSEN PARAMS FOR RUN
+
+analysis_type : imgnet_classification
+model_name : ImgNetCNN_resnet50
+transform : pretrained
+lr : 5e-05
+epochs : 15
+batch_size : 64
+adversarial_training : False
+adversarial : True
+adversarial_model : fgsml2
+eps : 12.2745098
+attack_compression : False
+compression_rate : 40
