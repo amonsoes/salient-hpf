@@ -1,6 +1,7 @@
 import torch
 import torchattacks
 import torchvision
+import foolbox.attacks.fast_gradient_method
 
 from torchvision import transforms as T
 from torchvision.io import encode_jpeg, decode_image
@@ -40,6 +41,7 @@ class AttackLoader:
         if attack_type in ['hpf_fgsm',
                            'hpf_fgsml2',
                             'hpf_bim',
+                            'hpf_biml2',
                             'hpf_pgd',
                             'hpf_pgdl2',
                             'hpf_vmifgsm',
@@ -54,6 +56,8 @@ class AttackLoader:
                            'fgsml2',
                            'hpf_fgsml2',
                            'bim',
+                           'biml2',
+                           'hpf_biml2',
                            'pgd',
                            'pgdl2',
                            'vmifgsm',
@@ -295,8 +299,12 @@ class WhiteBoxAttack:
             attack = torchattacks.attacks.fgsm.YcbcrHpfFGSM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'bim':
             attack = torchattacks.attacks.bim.BIM(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
+        elif attack_type == 'biml2':
+            attack = torchattacks.attacks.bim.BIML2(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
         elif attack_type == 'hpf_bim':
             attack = torchattacks.attacks.bim.HpfBIM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
+        elif attack_type == 'hpf_biml2':
+            attack = torchattacks.attacks.bim.HpfBIML2(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'pgd':
             attack = torchattacks.attacks.pgd.PGD(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
         elif attack_type == 'hpf_pgd':
