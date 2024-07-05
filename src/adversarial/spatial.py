@@ -41,6 +41,7 @@ class AttackLoader:
         if attack_type in ['hpf_fgsm',
                            'hpf_fgsml2',
                             'hpf_bim',
+                            'hpf_dim',
                             'hpf_biml2',
                             'hpf_pgd',
                             'hpf_pgdl2',
@@ -56,6 +57,8 @@ class AttackLoader:
                            'fgsml2',
                            'hpf_fgsml2',
                            'bim',
+                           'dim',
+                           'hpf_dim',
                            'biml2',
                            'hpf_biml2',
                            'pgd',
@@ -311,6 +314,10 @@ class WhiteBoxAttack:
             attack = torchattacks.attacks.pgd.HpfPGD(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'pgdl2':
             attack = torchattacks.attacks.pgdl2.PGDL2(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
+        elif attack_type == 'dim':
+            attack = torchattacks.attacks.difgsm.DIFGSM(model, surrogate_loss, model_trms=self.model_trms, *args, **kwargs)
+        elif attack_type == 'hpf_dim':
+            attack = torchattacks.attacks.difgsm.HPFDIFGSM(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs)
         elif attack_type == 'hpf_pgdl2':
             attack = torchattacks.attacks.pgdl2.HpfPGDL2(model, surrogate_loss=surrogate_loss, model_trms=self.model_trms, hpf_masker=hpf_masker, *args, **kwargs) #diff for 299(inception) and 224(rest)
         elif attack_type == 'ycbcr_hpf_pgdl2':
